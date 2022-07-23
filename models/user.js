@@ -1,4 +1,5 @@
 const { DataTypes } = require('sequelize')
+const bcrypt = require('bcrypt')
 
 const User = {
     username: {
@@ -14,11 +15,17 @@ const User = {
         allowNull: false,
         set(value){
             // hash password
+            let salt = await bcrypt.genSalt(10)
+            let hash = await bcrypt.hash(value, salt)
+            this.setDataValue('password_hash', hash)
         }
     },
     birth_date: {
         type: DataTypes.DATE,
-        allowNull: false
+        allowNull: false,
+        set(value){
+            // convert to date
+        }
     }
 }
 
