@@ -4,7 +4,7 @@
   "description": "API for an instagram clone",
   "main": "index.js",
   "scripts": {
-    "development": "nodemon app.js",
+    "dev": "nodemon app.js",
     "test": "npm run tests"
   },
   "keywords": [

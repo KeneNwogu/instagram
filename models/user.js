@@ -1,6 +1,7 @@
 const { DataTypes } = require('sequelize')
 const bcrypt = require('bcrypt')
 
+
 const User = {
     username: {
         type: DataTypes.STRING,
@@ -10,14 +11,13 @@ const User = {
         type: DataTypes.STRING,
         allowNull: false
     },
-    password_hash: {
+    password: {
         type: DataTypes.STRING,
         allowNull: false,
         set(value){
-            // hash password
-            let salt = await bcrypt.genSalt(10)
-            let hash = await bcrypt.hash(value, salt)
-            this.setDataValue('password_hash', hash)
+            let salt = bcrypt.genSaltSync(10)
+            let hash = bcrypt.hashSync(value, salt)
+            this.setDataValue('password', hash)
         }
     },
     birth_date: {
@@ -25,6 +25,8 @@ const User = {
         allowNull: false,
         set(value){
             // convert to date
+            let date = new Date(value)
+            this.setDataValue('birth_date', date)
         }
     }
 }
