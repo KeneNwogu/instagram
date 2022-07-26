@@ -12,11 +12,18 @@ const database_config = {
 const Sequelize = require('sequelize')
 const sequelize = new Sequelize(database_config)
 const user_schema = require('./user.js')
+const post_schema = require('./post.js')
 
-// define model objects here
 const UserModel = sequelize.define('User', user_schema);
-UserModel.sync()
+const PostModel = sequelize.define('Post', post_schema);
+
+UserModel.hasMany(PostModel)
+PostModel.belongsTo(UserModel)
+
+UserModel.sync();
+PostModel.sync();
 
 module.exports = {
-    User: UserModel
+    User: UserModel,
+    Post: PostModel
 }
