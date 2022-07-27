@@ -1,8 +1,8 @@
 const express = require('express')
 const router = express.Router()
-const { User } = require('../../models')
+const { User } = require('../models')
 const { celebrate, Joi, errors, Segments } = require('celebrate')
-const { RegisterSerializer, LoginSerializer } = require('../../serializers')
+const { RegisterSerializer, LoginSerializer } = require('../serializers')
 
 router.post('/register', 
 
@@ -14,12 +14,6 @@ router.post('/register',
         
         res.setHeader('Content-Type', 'application/json')
         let { email, username, password, birth_date } = req.body
-
-        if(!email || !username || !password || !birth_date){
-            return res
-            .status(200)
-            .end(JSON.stringify({ success: false, message: "invalid input was passed" })) 
-        }
 
         let user = await User.findAll({
             where: {

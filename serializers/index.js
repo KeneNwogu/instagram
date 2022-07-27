@@ -1,4 +1,4 @@
-import { Joi } from 'celebrate'
+const { Joi } = require('celebrate')
 
 const RegisterSerializer = Joi.object().keys({
     username: Joi.string().required(),
@@ -11,6 +11,15 @@ const RegisterSerializer = Joi.object().keys({
 const LoginSerializer = Joi.object().keys({
     email: Joi.string().required(),
     password: Joi.string().required()
+})
+
+const PostSerializer = Joi.object().keys({
+    caption: Joi.string().required(),
+})
+
+PostSerializer.options({
+    output: 'stream',
+    allow: 'multipart/form-data'
 })
 
 module.exports = { RegisterSerializer, LoginSerializer }
