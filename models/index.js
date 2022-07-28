@@ -9,21 +9,30 @@ const database_config = {
     dialect: "postgres"
 }
 
-const Sequelize = require('sequelize')
+const { Sequelize, DataTypes } = require('sequelize')
 const sequelize = new Sequelize(database_config)
 const user_schema = require('./user.js')
 const post_schema = require('./post.js')
+const { DATE } = require('sequelize')
 
 const UserModel = sequelize.define('User', user_schema);
 const PostModel = sequelize.define('Post', post_schema);
+const LikeModel = sequelize.define('Like', { date_created: { type: DataTypes.DATE, defaultValue: new DATE } });
 
 UserModel.hasMany(PostModel)
 PostModel.belongsTo(UserModel)
 
+UserModel.hasMany(LikeModel)
+PostModel.hasMany(LikeModel)
+LikeModel.belongsTo(PostModel)
+LikeModel.belongsTo(PostModel)
+
 UserModel.sync();
 PostModel.sync();
+LikeModel.sync();
 
 module.exports = {
     User: UserModel,
-    Post: PostModel
+    Post: PostModel,
+    Like: LikeModel
 }

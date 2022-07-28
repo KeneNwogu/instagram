@@ -2,8 +2,10 @@ const express = require('express')
 const app = express()
 const body_parser = require('body-parser')
 const user_controller = require('./controllers/userController.js')
+const post_controller = require('./controllers/postController.js')
 const json_parser = body_parser.json()
 const { errors } = require('celebrate')
+const cloudinary = require('cloudinary').v2
 
 const dotenv = require('dotenv')
 dotenv.config()
@@ -17,6 +19,9 @@ cloudinary.config({
 
 app.use(json_parser);
 app.use('/users', user_controller);
+app.use('/posts', post_controller);
 
 app.use(errors());
-app.listen(5000)
+app.listen(5000, () => {
+    console.log('Server started')
+})
