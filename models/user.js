@@ -1,34 +1,46 @@
-const { DataTypes } = require('sequelize')
+'use strict';
+const {
+  Model
+} = require('sequelize');
 const bcrypt = require('bcrypt')
 
-
-const UserSchema = {
-    username: {
-        type: DataTypes.STRING,
-        allowNull: false
-    },
-    email: {
-        type: DataTypes.STRING,
-        allowNull: false
-    },
+module.exports = (sequelize, DataTypes) => {
+  class User extends Model {
+    /**
+     * Helper method for defining associations.
+     * This method is not a part of Sequelize lifecycle.
+     * The `models/index` file will call this method automatically.
+     */
+    static associate(models) {
+      // define association here
+      models.User.hasMany(models.Post)
+      models.User.hasMany(models.Comment)
+    }
+  }
+  User.init({
+    username: DataTypes.STRING,
+    email: DataTypes.STRING,
     password: {
-        type: DataTypes.STRING,
-        allowNull: false,
-        set(value){
-            let salt = bcrypt.genSaltSync(10)
-            let hash = bcrypt.hashSync(value, salt)
-            this.setDataValue('password', hash)
-        }
+      type: DataTypes.STRING,
+      allowNull: false,
+      set(value){
+          let salt = bcrypt.genSaltSync(10)
+          let hash = bcrypt.hashSync(value, salt)
+          this.setDataValue('password', hash)
+      }
     },
     birth_date: {
-        type: DataTypes.DATE,
-        allowNull: false,
-        set(value){
-            // convert to date
-            let date = new Date(value)
-            this.setDataValue('birth_date', date)
-        }
+      type: DataTypes.DATE,
+      allowNull: false,
+      set(value){
+          // convert to date
+          let date = new Date(value)
+          this.setDataValue('birth_date', date)
+      }
     }
-}
-
-module.exports = UserSchema
+  }, {
+    sequelize,
+    modelName: 'User',
+  });
+  return User;
+};

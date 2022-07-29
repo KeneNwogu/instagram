@@ -1,6 +1,6 @@
 const express = require('express')
 const router = express.Router()
-const { Post } = require('../models')
+const { Post, Like } = require('../models')
 const fileUpload = require('express-fileupload')
 const cloudinary = require('cloudinary').v2
 const authMiddleware = require('../middlewares/authMiddleware')
@@ -38,5 +38,39 @@ router.post('/', [fileUpload(), authMiddleware.isAuthenticated], async (req, res
     return res.json({'success': true, 'message': 'Successfully created post'})
             .end()
 })
+
+router.post('/:post_id/like', authMiddleware.isAuthenticated, async(req, res) => {
+    let post_id = req.params.post_id
+    let post = await Post.findOne({
+        where: {
+            id: post_id
+        }
+    })
+    if (post !== null) {
+        let like = Like.findOne({
+            where: {
+                PostId: post_id,
+                UserId: req.user.id
+            }
+        })
+        if (like !== null) {
+            await Like.destroy({
+                where: {
+                    PostId: post_id,
+                    UserId: req.user.id
+                }
+            })
+            return res.end({ liked: false })
+        }
+        await Like.create({
+            PostId: post_id,
+            UserId: req.user.id
+        })
+        return res.end({ liked: true })
+    }
+    return res.end({ success: false, message: 'post was not found' })
+})
+
+// router.post('/:post_id/comment', authMiddleware.isAuthenticated, async)
 
 module.exports = router

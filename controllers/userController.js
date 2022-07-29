@@ -1,6 +1,7 @@
 const express = require('express')
 const router = express.Router()
 const { User } = require('../models')
+const { Op } = require('sequelize')
 const { celebrate, Joi, errors, Segments } = require('celebrate')
 const { RegisterSerializer, LoginSerializer } = require('../serializers')
 
@@ -17,14 +18,17 @@ router.post('/register',
 
         let user = await User.findAll({
             where: {
-                email: email
+                [Op.or]: [
+                    { email: email },
+                    { username: username }
+                ]   
             }
         })
 
         if(user.length > 0){
             return res
             .status(400)
-            .end(JSON.stringify({ success: false, message: "user with email already exists" }))
+            .end(JSON.stringify({ success: false, message: "user with email or username already exists" }))
         }
         user = User.create({ email, username, password, birth_date })
         return res

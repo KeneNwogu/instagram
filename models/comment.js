@@ -2,10 +2,8 @@
 const {
   Model
 } = require('sequelize');
-const bcrypt = require('bcrypt')
-
 module.exports = (sequelize, DataTypes) => {
-  class Post extends Model {
+  class Comment extends Model {
     /**
      * Helper method for defining associations.
      * This method is not a part of Sequelize lifecycle.
@@ -13,23 +11,13 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
-      models.Post.belongsTo(models.User)
-      models.Post.hasMany(models.Comment)
     }
   }
-
-  Post.init({
-    caption: {
-        type: DataTypes.TEXT,
-        allowNull: false
-    },
-    images: {
-        type: DataTypes.ARRAY(DataTypes.STRING),
-        allowNull: false
-    }
+  Comment.init({
+    caption: DataTypes.STRING
   }, {
     sequelize,
-    modelName: 'Post',
+    modelName: 'Comment',
   });
-  return Post;
+  return Comment;
 };
