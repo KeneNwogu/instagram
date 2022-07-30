@@ -13,13 +13,9 @@ const LoginSerializer = Joi.object().keys({
     password: Joi.string().required()
 })
 
-// const PostSerializer = Joi.object().keys({
-//     caption: Joi.string().required(),
-// })
+const CommentSerializer = Joi.object().keys({
+    caption: Joi.string().required(),
+})
 
-// PostSerializer.options({
-//     output: 'stream',
-//     allow: 'multipart/form-data'
-// })
 
-module.exports = { RegisterSerializer, LoginSerializer }
+module.exports = { RegisterSerializer, LoginSerializer, CommentSerializer }

@@ -1,11 +1,14 @@
 const express = require('express')
 const router = express.Router()
-const { Post, Like } = require('../models')
+const { Post, Comment, User } = require('../models')
 const fileUpload = require('express-fileupload')
 const cloudinary = require('cloudinary').v2
 const authMiddleware = require('../middlewares/authMiddleware')
 const bcrypt = require('bcrypt')
 const fs = require('fs')
+const { celebrate, Segments } = require('celebrate')
+const { CommentSerializer } = require('../serializers')
+// const { User } = require('../schemas')
 
 router.post('/', [fileUpload(), authMiddleware.isAuthenticated], async (req, res) => {
     // get user through auth middleware
@@ -39,6 +42,48 @@ router.post('/', [fileUpload(), authMiddleware.isAuthenticated], async (req, res
             .end()
 })
 
+router.get('/:post_id/comments', async (req, res) => {
+    res.setHeader('Content-Type', 'application/json')
+    let post_id = req.params.post_id
+    let post = await Post.findOne({
+        where: {
+            id: post_id
+        },
+        include: [
+            { model: User, attributes: ['username']},
+            { model: Comment, as: 'comments' }
+        ]
+    })
+    
+    return res.json(post)
+              .end()
+})
+
+router.post('/:post_id/comments', [
+    celebrate({
+        [Segments.BODY]: CommentSerializer
+    }), authMiddleware.isAuthenticated], 
+    async (req, res) => {
+        res.setHeader('Content-Type', 'application/json')
+        let post_id = req.params.post_id
+        let post = await Post.findOne({
+            where: {
+                id: post_id
+            }
+        })
+        if (post === null) {
+            return res.end(JSON.stringify({ success: false, message: "post does not exist or has been deleted"}))
+        }
+        await Comment.create({
+            caption: req.body.caption,
+            PostId: post_id,
+            UserId: req.user.id
+        })
+        return res.end(JSON.stringify({ success: true, message: "successfully added comment."}))
+    }
+)
+
+
 router.post('/:post_id/like', authMiddleware.isAuthenticated, async(req, res) => {
     let post_id = req.params.post_id
     let post = await Post.findOne({
@@ -68,7 +113,7 @@ router.post('/:post_id/like', authMiddleware.isAuthenticated, async(req, res) =>
         })
         return res.end({ liked: true })
     }
-    return res.end({ success: false, message: 'post was not found' })
+    return res.end(JSON.stringify({ success: false, message: 'post was not found' }))
 })
 
 // router.post('/:post_id/comment', authMiddleware.isAuthenticated, async)
