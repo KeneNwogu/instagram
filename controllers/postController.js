@@ -50,10 +50,15 @@ router.get('/:post_id/comments', async (req, res) => {
             id: post_id
         },
         include: [
-            { model: User, attributes: ['username']},
-            { model: Comment, as: 'comments' }
+            { model: User, attributes: ['username'], as: 'user'},
+            { 
+                model: Comment, 
+                include: { model: User, attributes: ['username'], as: 'user' }, 
+                as: 'comments', 
+                attributes: ['caption', 'createdAt'], 
+            }
         ]
-    })
+    }).catch((err) => console.log(err))
     
     return res.json(post)
               .end()

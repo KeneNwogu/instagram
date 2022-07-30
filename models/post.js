@@ -2,7 +2,6 @@
 const {
   Model
 } = require('sequelize');
-const bcrypt = require('bcrypt')
 
 module.exports = (sequelize, DataTypes) => {
   class Post extends Model {
@@ -13,8 +12,9 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
-      models.Post.belongsTo(models.User)
+      models.Post.belongsTo(models.User, { as: 'user', foreignKey: 'UserId' })
       models.Post.hasMany(models.Comment, { as: 'comments' })
+      models.Post.hasMany(models.Like, { as: 'likes' })
     }
   }
 
@@ -30,6 +30,6 @@ module.exports = (sequelize, DataTypes) => {
   }, {
     sequelize,
     modelName: 'Post',
-  });
+  }); 
   return Post;
 };
