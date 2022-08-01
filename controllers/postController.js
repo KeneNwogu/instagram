@@ -1,6 +1,6 @@
 const express = require('express')
 const router = express.Router()
-const { Post, Comment, User } = require('../models')
+const { Post, Comment, User, Like } = require('../models')
 const fileUpload = require('express-fileupload')
 const cloudinary = require('cloudinary').v2
 const authMiddleware = require('../middlewares/authMiddleware')
@@ -97,30 +97,53 @@ router.post('/:post_id/like', authMiddleware.isAuthenticated, async(req, res) =>
         }
     })
     if (post !== null) {
-        let like = Like.findOne({
+        let like = await Like.findOne({
             where: {
                 PostId: post_id,
                 UserId: req.user.id
             }
-        })
+        }).catch((err) => console.log(err))
+
         if (like !== null) {
             await Like.destroy({
                 where: {
                     PostId: post_id,
                     UserId: req.user.id
                 }
-            })
-            return res.end({ liked: false })
+            }).catch((err) => console.log(err))
+            return res.json({ liked: false })
+                    .end()
         }
         await Like.create({
             PostId: post_id,
             UserId: req.user.id
-        })
-        return res.end({ liked: true })
+        }).catch((err) => console.log(err))
+        return res.end(JSON.stringify({ liked: true }))
     }
     return res.end(JSON.stringify({ success: false, message: 'post was not found' }))
 })
 
-// router.post('/:post_id/comment', authMiddleware.isAuthenticated, async)
+
+router.get('/:post_id/likes', authMiddleware.isAuthenticated, async(req, res) => {
+    let post_id = req.params.post_id
+    let post = await Post.findOne({
+        where: {
+            id: post_id
+        }
+    })
+
+    if (post !== null) {
+        let likes = await Like.findAll({
+            PostId: post_id,
+            include: { model: User, as: 'user'},
+            attributes: ['createdAt']
+        }).catch(err => console.log(err))
+        return res.json(likes).end()
+    }
+
+    return res.json({ success: false, message: "post not found" })
+            .end()
+
+})
 
 module.exports = router

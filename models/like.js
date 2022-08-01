@@ -12,9 +12,9 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
-      models.Like.belongsTo(models.User, { as: 'user', foreignKey: 'UserId' })
-      models.Like.belongsTo(models.Comment, { as: 'comment', foreignKey: 'CommentId' })
-      models.Like.belongsTo(models.Post, { as: 'post', foreignKey: 'PostId' })
+      models.Like.belongsTo(models.User, { as: 'user', foreignKey: { name: 'UserId', allowNull: false } })
+      models.Like.belongsTo(models.Comment, { as: 'comment', foreignKey: { name: 'CommentId', allowNull: true } })
+      models.Like.belongsTo(models.Post, { as: 'post', foreignKey: { name: 'PostId', allowNull: true } })
     }
   }
 
