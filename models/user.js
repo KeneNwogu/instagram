@@ -16,6 +16,8 @@ module.exports = (sequelize, DataTypes) => {
       models.User.hasMany(models.Post, { as: 'posts' })
       models.User.hasMany(models.Comment, { as: 'comments' })
       models.User.hasMany(models.Like, { as: 'likes' })
+      models.User.belongsToMany(models.User, { through: 'Followers', as: 'followers', foreignKey: 'followerId' })
+      models.User.belongsToMany(models.User, { through: 'Followers', as: 'following', foreignKey: 'followingId' })
     }
   }
   User.init({
@@ -37,6 +39,21 @@ module.exports = (sequelize, DataTypes) => {
           // convert to date
           let date = new Date(value)
           this.setDataValue('birth_date', date)
+      }
+    },
+    profile_image: {
+      type: DataTypes.STRING,
+      allowNull: true,
+      get(){
+        if(this.getDataValue('profile_image') === null) {
+          let email = this.getDataValue('email')
+          let md5 = require('md5');
+          let hash = md5(email);
+          return `https://www.gravatar.com/avatar/` + hash + `?d=mp`;
+        }
+        else {
+          return this.getDataValue('profile_image')
+        }
       }
     }
   }, {
