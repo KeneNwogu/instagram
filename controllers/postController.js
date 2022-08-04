@@ -59,6 +59,9 @@ router.get('/:post_id/comments', async (req, res) => {
                 }
             ]
         })
+        if(post === null){
+            return res.status(404).json({success: false, message: "post has been deleted or does not exist"}).end()
+        }
         return res.json(post)
             .end()
     }
@@ -76,7 +79,6 @@ router.post('/:post_id/comments', [
         [Segments.BODY]: CommentSerializer
     }), authMiddleware.isAuthenticated], 
     async (req, res) => {
-        res.setHeader('Content-Type', 'application/json')
         try{
             let post_id = req.params.post_id
             let post = await Post.findOne({
@@ -134,7 +136,7 @@ router.post('/:post_id/like', authMiddleware.isAuthenticated, async(req, res) =>
             }).catch((err) => console.log(err))
             return res.end(JSON.stringify({ liked: true }))
         }
-        return res.end(JSON.stringify({ success: false, message: 'post was not found' }))
+        return res.status(404).end(JSON.stringify({ success: false, message: 'post was not found' }))
     }
     catch(err){
         res.status(500).json({ success: false }).end()
@@ -160,7 +162,7 @@ router.get('/:post_id/likes', authMiddleware.isAuthenticated, async(req, res) =>
             return res.json(likes).end()
         }
     
-        return res.json({ success: false, message: "post not found" })
+        return res.status(404).json({ success: false, message: "post not found" })
                 .end()
     }
     catch(err) {

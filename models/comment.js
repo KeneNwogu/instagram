@@ -14,6 +14,9 @@ module.exports = (sequelize, DataTypes) => {
       models.Comment.belongsTo(models.Post, { as: 'post', foreignKey: 'PostId' })
       models.Comment.belongsTo(models.User, { as: 'user', foreignKey: 'UserId' })
       models.Comment.hasMany(models.Like, { as: 'likes' })
+
+      models.Comment.hasMany(models.Comment, { as: 'replies' })
+      models.Comment.belongsTo(models.Comment, { as: 'comment', allowNull: true, foreignKey: 'CommentId'})
     }
   }
   Comment.init({
