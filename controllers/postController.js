@@ -43,25 +43,32 @@ router.post('/', [fileUpload(), authMiddleware.isAuthenticated], async (req, res
 })
 
 router.get('/:post_id/comments', async (req, res) => {
-    res.setHeader('Content-Type', 'application/json')
     let post_id = req.params.post_id
-    let post = await Post.findOne({
-        where: {
-            id: post_id
-        },
-        include: [
-            { model: User, attributes: ['username'], as: 'user'},
-            { 
-                model: Comment, 
-                include: { model: User, attributes: ['username'], as: 'user' }, 
-                as: 'comments', 
-                attributes: ['caption', 'createdAt'], 
-            }
-        ]
-    }).catch((err) => console.log(err))
+    try {
+        let post = await Post.findOne({
+            where: {
+                id: post_id
+            },
+            include: [
+                { model: User, attributes: ['username'], as: 'user'},
+                { 
+                    model: Comment, 
+                    include: { model: User, attributes: ['username'], as: 'user' }, 
+                    as: 'comments', 
+                    attributes: ['caption', 'createdAt'], 
+                }
+            ]
+        })
+        return res.json(post)
+            .end()
+    }
     
-    return res.json(post)
-              .end()
+    catch(err) {
+        console.log(err)
+        res.status(500)
+        .json({success: false})
+        .end()
+    }
 })
 
 router.post('/:post_id/comments', [
@@ -70,80 +77,95 @@ router.post('/:post_id/comments', [
     }), authMiddleware.isAuthenticated], 
     async (req, res) => {
         res.setHeader('Content-Type', 'application/json')
-        let post_id = req.params.post_id
-        let post = await Post.findOne({
-            where: {
-                id: post_id
+        try{
+            let post_id = req.params.post_id
+            let post = await Post.findOne({
+                where: {
+                    id: post_id
+                }
+            })
+            if (post === null) {
+                return res.end(JSON.stringify({ success: false, message: "post does not exist or has been deleted"}))
             }
-        })
-        if (post === null) {
-            return res.end(JSON.stringify({ success: false, message: "post does not exist or has been deleted"}))
+            await Comment.create({
+                caption: req.body.caption,
+                PostId: post_id,
+                UserId: req.user.id
+            })
+            return res.end(JSON.stringify({ success: true, message: "successfully added comment."}))
         }
-        await Comment.create({
-            caption: req.body.caption,
-            PostId: post_id,
-            UserId: req.user.id
-        })
-        return res.end(JSON.stringify({ success: true, message: "successfully added comment."}))
+        catch(err){
+            console.log(err)
+            res.status(500).json({ success: false }).end()
+        }   
     }
 )
 
 
 router.post('/:post_id/like', authMiddleware.isAuthenticated, async(req, res) => {
     let post_id = req.params.post_id
-    let post = await Post.findOne({
-        where: {
-            id: post_id
-        }
-    })
-    if (post !== null) {
-        let like = await Like.findOne({
+    try{
+        let post = await Post.findOne({
             where: {
-                PostId: post_id,
-                UserId: req.user.id
+                id: post_id
             }
-        }).catch((err) => console.log(err))
-
-        if (like !== null) {
-            await Like.destroy({
+        })
+        if (post !== null) {
+            let like = await Like.findOne({
                 where: {
                     PostId: post_id,
                     UserId: req.user.id
                 }
+            })
+    
+            if (like !== null) {
+                await Like.destroy({
+                    where: {
+                        PostId: post_id,
+                        UserId: req.user.id
+                    }
+                })
+                return res.json({ liked: false })
+                        .end()
+            }
+            await Like.create({
+                PostId: post_id,
+                UserId: req.user.id
             }).catch((err) => console.log(err))
-            return res.json({ liked: false })
-                    .end()
+            return res.end(JSON.stringify({ liked: true }))
         }
-        await Like.create({
-            PostId: post_id,
-            UserId: req.user.id
-        }).catch((err) => console.log(err))
-        return res.end(JSON.stringify({ liked: true }))
+        return res.end(JSON.stringify({ success: false, message: 'post was not found' }))
     }
-    return res.end(JSON.stringify({ success: false, message: 'post was not found' }))
+    catch(err){
+        res.status(500).json({ success: false }).end()
+    }
 })
 
 
 router.get('/:post_id/likes', authMiddleware.isAuthenticated, async(req, res) => {
     let post_id = req.params.post_id
-    let post = await Post.findOne({
-        where: {
-            id: post_id
+    try {
+        let post = await Post.findOne({
+            where: {
+                id: post_id
+            }
+        })
+    
+        if (post !== null) {
+            let likes = await Like.findAll({
+                PostId: post_id,
+                include: { model: User, as: 'user'},
+                attributes: ['createdAt']
+            }).catch(err => console.log(err))
+            return res.json(likes).end()
         }
-    })
-
-    if (post !== null) {
-        let likes = await Like.findAll({
-            PostId: post_id,
-            include: { model: User, as: 'user'},
-            attributes: ['createdAt']
-        }).catch(err => console.log(err))
-        return res.json(likes).end()
+    
+        return res.json({ success: false, message: "post not found" })
+                .end()
     }
-
-    return res.json({ success: false, message: "post not found" })
-            .end()
-
+    catch(err) {
+        res.status(500).json({ success: false }).end()
+    } 
 })
 
 module.exports = router

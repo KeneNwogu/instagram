@@ -55,7 +55,7 @@ module.exports = (sequelize, DataTypes) => {
           return this.getDataValue('profile_image')
         }
       }
-    }
+    },
   }, {
     sequelize,
     modelName: 'User',

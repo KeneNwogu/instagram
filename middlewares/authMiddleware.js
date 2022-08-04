@@ -13,6 +13,9 @@ let authenticationMiddleware = {
             }
         })
         next();
+    },
+    isAuthenticatedOrReadOnly: async function(req, res, next){
+        
     }
 }
 
