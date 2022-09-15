@@ -1,6 +1,7 @@
 'use strict';
 const {
-  Model
+  Model, 
+  Op
 } = require('sequelize');
 const bcrypt = require('bcrypt')
 
@@ -19,7 +20,44 @@ module.exports = (sequelize, DataTypes) => {
       models.User.belongsToMany(models.User, { through: 'Followers', as: 'followers', foreignKey: 'followerId' })
       models.User.belongsToMany(models.User, { through: 'Followers', as: 'following', foreignKey: 'followingId' })
     }
+
+    static getUserById(id){
+      return User.findOne({ where: { id } })
+    }
+
+    static getUserByEmail(email){
+      return User.findOne({ where: { email } })
+    }
+
+    static isEmailOrUsernameExists(email, username){
+        let users = User.findAll({
+          where: {
+                [Op.or]: [
+                    { email: email },
+                    { username: username }
+                ]   
+            }
+        })
+        if (users.length > 0) return true
+        return false
+    }
+
+    toJSON(){
+      return {
+        username: this.username,
+        email: this.email,
+        birth_date: this.birth_date,
+        profile_image: this.profile_image,
+        bio: this.bio
+      }
+    }
+
+    checkPasswordHash(password){
+        return bcrypt.compareSync(password, this.password)
+    }
   }
+
+
   User.init({
     username: DataTypes.STRING,
     email: DataTypes.STRING,
@@ -56,9 +94,17 @@ module.exports = (sequelize, DataTypes) => {
         }
       }
     },
+
+    bio: {
+      type: DataTypes.STRING,
+      allowNull: true
+    }
   }, {
     sequelize,
     modelName: 'User',
+    defaultScope: {
+      attributes: { exclude: ['password'] }
+    }
   });
   return User;
 };

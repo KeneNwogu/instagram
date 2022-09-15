@@ -1,8 +1,7 @@
 const express = require('express')
 const app = express()
 const body_parser = require('body-parser')
-const user_controller = require('./controllers/userController.js')
-const post_controller = require('./controllers/postController.js')
+const user_routes = require('./routes/user.routes.js')
 const responseMiddleware = require('./middlewares/responseMiddleware')
 const json_parser = body_parser.json()
 const { errors } = require('celebrate')
@@ -20,8 +19,7 @@ cloudinary.config({
 
 app.use(json_parser);
 app.use(responseMiddleware.addJsonHeader)
-app.use('/users', user_controller);
-app.use('/posts', post_controller);
+app.use('/api/v1/users', user_routes)
 
 app.use(errors());
 app.listen(5000, () => {
