@@ -16,6 +16,31 @@ module.exports = (sequelize, DataTypes) => {
       models.Like.belongsTo(models.Comment, { as: 'comment', foreignKey: { name: 'CommentId', allowNull: true } })
       models.Like.belongsTo(models.Post, { as: 'post', foreignKey: { name: 'PostId', allowNull: true } })
     }
+
+    static getLike(post_id, user_id){
+      return Like.findOne({
+        where: {
+          PostId: post_id,
+          UserId: user_id
+        }
+      })
+    }
+
+    static likePost(post_id, user_id){
+      Like.create({
+        PostId: post_id,
+        UserId: user_id
+      })
+    }
+
+    static unLikePost(post_id, user_id){
+      Like.destroy({
+        where: {
+          PostId: post_id,
+          UserId: user_id
+        }
+      })
+    }
   }
 
   Like.init({

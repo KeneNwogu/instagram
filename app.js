@@ -2,6 +2,7 @@ const express = require('express')
 const app = express()
 const body_parser = require('body-parser')
 const user_routes = require('./routes/user.routes.js')
+const post_routes = require('./routes/post.routes')
 const responseMiddleware = require('./middlewares/responseMiddleware')
 const json_parser = body_parser.json()
 const { errors } = require('celebrate')
@@ -20,6 +21,7 @@ cloudinary.config({
 app.use(json_parser);
 app.use(responseMiddleware.addJsonHeader)
 app.use('/api/v1/users', user_routes)
+app.use('/api/v1/posts', post_routes)
 
 app.use(errors());
 app.listen(5000, () => {

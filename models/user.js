@@ -44,6 +44,7 @@ module.exports = (sequelize, DataTypes) => {
 
     toJSON(){
       return {
+        id: this.id,
         username: this.username,
         email: this.email,
         birth_date: this.birth_date,
@@ -53,14 +54,18 @@ module.exports = (sequelize, DataTypes) => {
     }
 
     checkPasswordHash(password){
-        return bcrypt.compareSync(password, this.password)
+      return bcrypt.compareSync(password, this.password)
     }
   }
 
 
   User.init({
-    username: DataTypes.STRING,
-    email: DataTypes.STRING,
+    username: {
+      type: DataTypes.STRING
+    },
+    email: {
+      type: DataTypes.STRING
+    },
     password: {
       type: DataTypes.STRING,
       allowNull: false,
@@ -90,8 +95,11 @@ module.exports = (sequelize, DataTypes) => {
           return `https://www.gravatar.com/avatar/` + hash + `?d=mp`;
         }
         else {
-          return this.getDataValue('profile_image')
+          return null
         }
+      },
+      set(value){
+        this.setDataValue('profile_image', value)
       }
     },
 
