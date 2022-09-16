@@ -13,6 +13,31 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       // define association here
     }
+
+    static followUser(follower_id, following_id){
+        Followers.create({
+            followerId: follower_id,
+            followingId: following_id
+        })
+    }
+
+    static unfollowUser(follower_id, following_id){
+        Followers.destroy({
+            where: {
+                followerId: follower_id,
+                followingId: following_id
+            }
+        })
+    }
+
+    static async getFollowerIDs(user_id){
+        let followers = await Followers.findAll({
+            where: {
+                followingId: user_id
+            }
+        })
+        return followers.map((follower) => follower = follower.followerId)
+    }
   }
 
   Followers.init({

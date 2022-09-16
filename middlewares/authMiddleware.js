@@ -9,7 +9,7 @@ require('dotenv').config()
 let authenticationMiddleware = {
     isAuthenticated: async function(req, res, next) {
         const authHeader = req.headers['authorization'];
-        if (!authHeader) res.sendStatus(401);
+        if (!authHeader) return res.sendStatus(401);
         if(authHeader.split(' ').length !== 2) res.sendStatus(401);
 
         const token = authHeader.split(' ')[1]

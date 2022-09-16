@@ -17,8 +17,8 @@ module.exports = (sequelize, DataTypes) => {
       models.User.hasMany(models.Post, { as: 'posts' })
       models.User.hasMany(models.Comment, { as: 'comments' })
       models.User.hasMany(models.Like, { as: 'likes' })
-      models.User.belongsToMany(models.User, { through: 'Followers', as: 'followers', foreignKey: 'followerId' })
-      models.User.belongsToMany(models.User, { through: 'Followers', as: 'following', foreignKey: 'followingId' })
+      models.User.belongsToMany(models.User, { through: 'Followers', as: 'following', foreignKey: 'followerId' })
+      models.User.belongsToMany(models.User, { through: 'Followers', as: 'followers', foreignKey: 'followingId' })
     }
 
     static getUserById(id){
@@ -65,9 +65,9 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       allowNull: false,
       set(value){
-          let salt = bcrypt.genSaltSync(10)
-          let hash = bcrypt.hashSync(value, salt)
-          this.setDataValue('password', hash)
+        let salt = bcrypt.genSaltSync(10)
+        let hash = bcrypt.hashSync(value, salt)
+        this.setDataValue('password', hash)
       }
     },
     birth_date: {
@@ -98,13 +98,13 @@ module.exports = (sequelize, DataTypes) => {
     bio: {
       type: DataTypes.STRING,
       allowNull: true
-    }
+    },
   }, {
     sequelize,
     modelName: 'User',
-    defaultScope: {
-      attributes: { exclude: ['password'] }
-    }
+    // defaultScope: {
+    //   attributes: { exclude: ['password'] }
+    // }
   });
   return User;
 };
